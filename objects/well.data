@@ -1,0 +1,1 @@
+{"type": "object", "name": "well", "description": "It's a stone brick well with a small wooden structure on top with a mechanism to lower and raise a nearby bucket.", "script": "well", "args": ["name"], "creation": "basicreate", "identifiers": [], "identifier": "", "health": 10}

@@ -1,0 +1,1 @@
+{"identifiers": [], "script": "openwall", "name": "openwall", "hiddenname": "openwall", "description": "This is literally nothing.", "args": ["name", "wall"], "creation": "clearwall", "health": 10000000, "identifier": "", "type": "object"}

@@ -1,0 +1,1 @@
+{"type":"object","name":"bed","description":"It is an old bed with a not quite as old quilt draped across it and a soft downing pillow at the head.","script":"sleep","args":["name","quality"],"quality":10,"creation":"basicreate","identifiers":[],"identifier":"","health":8}

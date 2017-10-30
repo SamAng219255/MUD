@@ -1,0 +1,1 @@
+{"type": "object", "name": "flower", "description": "It's a flower.", "script": "", "args": [], "creation": "createflower", "identifiers": ["red","orange","yellow","white","blue","purple","black"], "identifier": "red", "health": 1, "color": "red"}

@@ -1,0 +1,1 @@
+{"type":"object","name":"fireplace","description":"A stone fireplace with a warm, crackling fire.","script":"gaze","args":["name","view"],"view":"into the fire","creation":"basicreate","identifiers":[],"identifier":"","health":20}

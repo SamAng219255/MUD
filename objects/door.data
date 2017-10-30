@@ -1,0 +1,1 @@
+{"type":"object","name":"door","description":"A simple wooden door.","script":"door","args":["name","wall"],"wall":0,"creation":"newdoor","identifiers":["north","east","south","west"],"identifier":"east","health":10}

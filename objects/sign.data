@@ -1,0 +1,1 @@
+{"type": "object", "name": "sign", "description": "A wooden sign.", "script": "sign", "args": ["name", "title", "text"], "creation": "signcreate", "identifiers": [], "identifier": "", "health": 5, "title": "Warning!:", "text": "Drop!"}
