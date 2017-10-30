@@ -86,7 +86,7 @@ def tlist(listed):
 				else:
 					textListAND+="s"
 		if type(finalList[0][2]) == type(""):
-			textListAND+=finalList[i][2]
+			textListAND+=finalList[0][2]
 		return textListAND
 	else:
 		return "nothing"
@@ -128,12 +128,18 @@ def mtlist(listed):
             temp[stor.index(elem)][1]+=1
     return tlist(temp)
 def mtlists(listed):#medium text list, specific; for listing room contents
-    temp=[]
-    stor=[]
-    for elem in listed:
-        if not (elem["name"] in stor):
-            stor.append(elem["name"])
-            temp.append([elem["name"],1,""])
-        else:
-            temp[stor.index(elem["name"])][1]+=1
-    return tlist(temp)
+	temp=[]
+	stor=[]
+	for elem in listed:
+		sepunder=elem["name"].split("_")
+		elemname=""
+		for i in range(len(sepunder)):
+			if i>0:
+				elemname+=" "
+			elemname+=sepunder[i]
+		if not (elemname in stor):
+			stor.append(elemname)
+			temp.append([elemname,1,""])
+		else:
+			temp[stor.index(elemname)][1]+=1
+	return tlist(temp)
