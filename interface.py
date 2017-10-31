@@ -198,6 +198,6 @@ def outputText(player,layer):#directly called by client; generates output text
   for thing in textblock:
    txt+=thing
  else:
-  print("You appear to left the map...\nYou will be returned to the center of the map.")
+  txt="You appear to left the map...\nYou will be returned to the center of the map."
 
  return txt

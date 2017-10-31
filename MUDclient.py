@@ -14,5 +14,8 @@ if __name__=="__main__":
   layerId=player["layer"]
   print(outputText(player,layer))
   playerInput=takeInput(input(""))
-  player,layer,playing=runworld(player,layer,playerInput)
-  statuswrite(player,layer,userId,layerId)
+  if player["room"]<0:
+   player,layer,playing=runworld(player,layer,playerInput)
+  else:
+   player,layer,playing=runworld(player,layer,playerInput)
+   statuswrite(player,layer,userId,layerId)

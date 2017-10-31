@@ -19,10 +19,12 @@ def statusread(userId):
   pf=open("player.data","r")
   player=json.load(pf)
   pf.close()
- if(player["room"]>=0)
+ if(player["room"]>=0):
   lf=open("region/layer"+str(player["layer"])+".data","r")
   layer=json.load(lf)
   lf.close()
+ else:
+  layer=[]
  return player,layer
 
 def statuswrite(player,layer,userId,layerId):

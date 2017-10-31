@@ -1,1 +1,1 @@
-{"maxHealth": 42, "food": 21, "energy": 27, "baseAttack": 1, "layer": 9, "inventory": [], "health": 42, "attack": 1, "room": 64}
+{"layer": 9, "food": 21, "maxHealth": 42, "inventory": [], "room": 63, "energy": 27, "attack": 1, "health": 42, "baseAttack": 1}
