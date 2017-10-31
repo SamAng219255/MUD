@@ -53,27 +53,44 @@ def ccs(obj,player,layer):#Call Creation Script; creates an enviroment object an
 
 def runworld(player,layer,request):#directly called by client; processes world interaction #WIP; should check action list for the given action and execute code accordingly. it should then process the passive actions of the other objects in the room.
  playing=True
- if request["action"]=="activate":
-  postar=[]
-  tar={}
-  obj,ident=request["arguments"][0]
-  for thing in layer[player["room"]]["contents"]:
-   if thing["name"]==obj:
-    postar.append(thing)
-  if len(postar)<1:
-   print("I'm sorry. I didn't understand that.")
-  elif len(postar)==1:
-   tar=postar[0]
-  else:
-   for thing in postar:
-    if(thing["identifier"]==ident):
-     tar=thing
-  cos(tar,player,layer)
- elif request["action"]=="look":
-  obj,ident=request["arguments"][0]
-  if(obj==""):
-   print(layer[player["room"]]["look"])
-  else:
+ if player["room"]>=0:
+  if request["action"]=="activate":
+   postar=[]
+   tar={}
+   obj,ident=request["arguments"][0]
+   for thing in layer[player["room"]]["contents"]:
+    if thing["name"]==obj:
+     postar.append(thing)
+   if len(postar)<1:
+    print("I'm sorry. I didn't understand that.")
+   elif len(postar)==1:
+    tar=postar[0]
+   else:
+    for thing in postar:
+     if(thing["identifier"]==ident):
+      tar=thing
+   cos(tar,player,layer)
+  elif request["action"]=="look":
+   obj,ident=request["arguments"][0]
+   if(obj==""):
+    print(layer[player["room"]]["look"])
+   else:
+    postar=[]
+    tar={}
+    obj,ident=request["arguments"][0]
+    for thing in layer[player["room"]]["contents"]:
+     if thing["name"]==obj:
+      postar.append(thing)
+    if len(postar)<1:
+     print("I'm sorry. I didn't understand that.")
+    elif len(postar)==1:
+     tar=postar[0]
+    else:
+     for thing in postar:
+      if(thing["identifier"]=="ident"):
+       tar=thing
+    print(tar["description"])
+  elif request["action"]=="attack":
    postar=[]
    tar={}
    obj,ident=request["arguments"][0]
@@ -88,81 +105,67 @@ def runworld(player,layer,request):#directly called by client; processes world i
     for thing in postar:
      if(thing["identifier"]=="ident"):
       tar=thing
-   print(tar["description"])
- elif request["action"]=="attack":
-  postar=[]
-  tar={}
-  obj,ident=request["arguments"][0]
-  for thing in layer[player["room"]]["contents"]:
-   if thing["name"]==obj:
-    postar.append(thing)
-  if len(postar)<1:
-   print("I'm sorry. I didn't understand that.")
-  elif len(postar)==1:
-   tar=postar[0]
-  else:
-   for thing in postar:
-    if(thing["identifier"]=="ident"):
-     tar=thing
-  tar["health"]-=player["attack"]
- elif request["action"]=="move":
-  obj,ident=request["arguments"][0]
-  newrequest={"action":"activate","arguments":[("door",obj)]}
-  runworld(player,layer,newrequest)
- elif request["action"]=="stop":
-  playing=False
- elif request["action"]=="create":
-  arg,ident=request["arguments"][0]
-  layer[player["room"]]["contents"].append(ccs(arg,player,layer))
- elif request["action"]=="edit":
-  obj,ident=request["arguments"][0]
-  if(obj==""):
-   desc=input("What would you like as the new room description? (leave blank to not change):\n")
-   if desc!="":
-    layer[player["room"]]["description"]=desc
-   desc=input("What would you like as the new room search description? (leave blank to not change):\n")
-   if desc!="":
-    layer[player["room"]]["look"]=desc
-  else:
+   tar["health"]-=player["attack"]
+  elif request["action"]=="move":
+   obj,ident=request["arguments"][0]
+   newrequest={"action":"activate","arguments":[("door",obj)]}
+   runworld(player,layer,newrequest)
+  elif request["action"]=="stop":
+   playing=False
+  elif request["action"]=="create":
+   arg,ident=request["arguments"][0]
+   layer[player["room"]]["contents"].append(ccs(arg,player,layer))
+  elif request["action"]=="edit":
+   obj,ident=request["arguments"][0]
+   if(obj==""):
+    desc=input("What would you like as the new room description? (leave blank to not change):\n")
+    if desc!="":
+     layer[player["room"]]["description"]=desc
+    desc=input("What would you like as the new room search description? (leave blank to not change):\n")
+    if desc!="":
+     layer[player["room"]]["look"]=desc
+   else:
+    postar=[]
+    tar={}
+    for thing in layer[player["room"]]["contents"]:
+     if thing["name"]==obj:
+      postar.append(thing)
+    if len(postar)<1:
+     print("I'm sorry. I didn't understand that.")
+    elif len(postar)==1:
+     tar=postar[0]
+    else:
+     for thing in postar:
+      if(thing["identifier"]=="ident"):
+       tar=thing
+    desc=input("What you like tike to change the "+tar["name"]+"'s name to? (leave blank to not change):\n")
+    if desc!="":
+     tar["name"]=desc
+    desc=input("What would you like as the new description? (leave blank to not change):\n")
+    if desc!="":
+     tar["description"]=desc
+  elif request["action"]=="remove":
    postar=[]
    tar={}
-   for thing in layer[player["room"]]["contents"]:
-    if thing["name"]==obj:
-     postar.append(thing)
+   obj,ident=request["arguments"][0]
+   for i in range(len(layer[player["room"]]["contents"])):
+    if layer[player["room"]]["contents"][i]["name"]==obj:
+     postar.append(i)
    if len(postar)<1:
     print("I'm sorry. I didn't understand that.")
    elif len(postar)==1:
     tar=postar[0]
    else:
-    for thing in postar:
-     if(thing["identifier"]=="ident"):
-      tar=thing
-   desc=input("What you like tike to change the "+tar["name"]+"'s name to? (leave blank to not change):\n")
-   if desc!="":
-    tar["name"]=desc
-   desc=input("What would you like as the new description? (leave blank to not change):\n")
-   if desc!="":
-    tar["description"]=desc
- elif request["action"]=="remove":
-  postar=[]
-  tar={}
-  obj,ident=request["arguments"][0]
-  for i in range(len(layer[player["room"]]["contents"])):
-   if layer[player["room"]]["contents"][i]["name"]==obj:
-    postar.append(i)
-  if len(postar)<1:
-   print("I'm sorry. I didn't understand that.")
-  elif len(postar)==1:
-   tar=postar[0]
-  else:
-   for i in postar:
-    if(layer[player["room"]]["contents"][i]["identifier"]==ident):
-     tar=i
-  objscr=importlib.import_module("objectScripts."+layer[player["room"]]["contents"][tar]["creation"])
-  objscr.remove(layer[player["room"]]["contents"][tar],player,layer)
-  del layer[player["room"]]["contents"][tar]
- #elif request["action"]=="pickup":
- #elif request["action"]=="drop":
+    for i in postar:
+     if(layer[player["room"]]["contents"][i]["identifier"]==ident):
+      tar=i
+   objscr=importlib.import_module("objectScripts."+layer[player["room"]]["contents"][tar]["creation"])
+   objscr.remove(layer[player["room"]]["contents"][tar],player,layer)
+   del layer[player["room"]]["contents"][tar]
+  #elif request["action"]=="pickup":
+  #elif request["action"]=="drop":
+ else:
+  player["room"]=0
  return player,layer,playing
 
 def takeInput(spoken):#directly called by client; parses player input #WIP
@@ -188,10 +191,13 @@ def takeInput(spoken):#directly called by client; parses player input #WIP
 
 def outputText(player,layer):#directly called by client; generates output text
  
- textblock=layer[player["room"]]["description"].split("&",1)
- textblock.insert(1,utility.mtlists(layer[player["room"]]["contents"]))
- txt=""
- for thing in textblock:
-  txt+=thing
+ if(player["room"]>=0):
+  textblock=layer[player["room"]]["description"].split("&",1)
+  textblock.insert(1,utility.mtlists(layer[player["room"]]["contents"]))
+  txt=""
+  for thing in textblock:
+   txt+=thing
+ else:
+  print("You appear to left the map...\nYou will be returned to the center of the map.")
 
  return txt
