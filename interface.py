@@ -1,17 +1,22 @@
 import importlib
 import json
-import utility
+from utility import *
+from callscripts import *
+from os import listdir
 
 actions=[
- {"name":"activate","arguments":[{"required":True,"type":"variable","values":["room object","inventory item"]},{"required":False,"type":"variable","values":["inventory item"]}],"synonyms":["use","pick","unlock","lock","walk through","open","activate"]},
- {"name":"look","arguments":[{"required":False,"type":"variable","values":["room object","inventory item"]}],"synonyms":["look","walk * to","run * to","search","observe","go * to"]},
- {"name":"attack","arguments":[{"required":True,"type":"variable","values":["room object"]}],"synonyms":["hit","punch","attack","whack"]},
+ {"name":"activate","arguments":[{"required":True,"type":"variable","values":["enviroment object","inventory item"]},{"required":False,"type":"variable","values":["inventory item"]}],"synonyms":["use","unlock","lock","walk_through","go_through","open","activate","enter","check","touch"]},
+ {"name":"look","arguments":[{"required":True,"type":"variable","values":["enviroment object","inventory item"]}],"synonyms":["look","walk_to","run_to","search","observe","go_to"]},
+ {"name":"attack","arguments":[{"required":True,"type":"variable","values":["enviroment object"]}],"synonyms":["hit","punch","attack","whack","kill"]},
  {"name":"move","arguments":[{"required":True,"type":"string","values":[("north",["north","northern","up","top"]),("south",["south","southern","lower","bottom"]),("east",["east","eastern","right"]),("south",["west","western","left","sinister"])]}],"synonyms":["move","go","walk","run"]},
  {"name":"create","arguments":[{"required":True,"type":"variable","values":["non object"]}],"synonyms":["create","build","add"]},
- {"name":"edit","arguments":[],"synonyms":["edit","editroom"]},
+ {"name":"edit","arguments":[{"required":True,"type":"variable","values":["enviroment object","inventory item"]}],"synonyms":["edit","edit","change","modify","fix"]},
+ {"name":"reset","arguments":[{"required":True,"type":"variable","values":["enviroment object"]}],"synonyms":["reset"]},
  {"name":"remove","arguments":[{"required":True,"type":"variable","values":["enviroment object"]}],"synonyms":["destroy","remove","delete"]},
- {"name":"pickup","arguments":[{"required":True,"type":"variable","values":["enviroment item"]}],"synonyms":["pickup","take","pick up"]},
- {"name":"drop","arguments":[{"required":True,"type":"variable","values":["inventory item"]}],"synonyms":["drop","let go"]}
+ {"name":"pickup","arguments":[{"required":True,"type":"variable","values":["enviroment item"]}],"synonyms":["pickup","take","pick_up"]},
+ {"name":"drop","arguments":[{"required":True,"type":"variable","values":["inventory item"]}],"synonyms":["drop","let_go"]},
+ {"name":"stop","arguments":[],"synonyms":["stop","end","leave","suicide"]},
+ {"name":"here","arguments":[],"synonyms":["here","where"]}
 ]
 actionnames={}
 actionids=[]
@@ -36,168 +41,122 @@ def bar2():#build second action reverse search; allows for search index by name
   actionnames[actions[i]["name"]]=i
 bar2()
 
-def cos(obj,player,layer):#Call Object Script; calls the script of a given enviroment object
- args=[]#initiate "args"
- for arg in obj["args"]:#iterate through object arguments
-  args.append(obj[arg])#add argument value to "args"
- objscr=importlib.import_module("objectScripts."+obj["script"])#import object creation script
- objscr.main(args,player,layer)#call object script with "args"
-
-def ccs(obj,player,layer):#Call Creation Script; creates an enviroment object and calls its creation script
- f=open("objects/"+obj+".data","r")#open object template file
- newobj=json.load(f)#initiate object from template
- f.close()#close object template file
- objscr=importlib.import_module("objectScripts."+newobj["creation"])#import object script
- newobj=objscr.main(newobj,player,layer)#call object script on object
- return newobj#return the created object
-
-def runworld(player,layer,request):#directly called by client; processes world interaction #WIP; should check action list for the given action and execute code accordingly. it should then process the passive actions of the other objects in the room.
+def runworld(player,layer,request):#directly called by client; processes world interaction
  playing=True
  if player["room"]>=0:
-  if request["action"]=="activate":
-   postar=[]
-   tar={}
-   obj,ident=request["arguments"][0]
-   for thing in layer[player["room"]]["contents"]:
-    if thing["name"]==obj:
-     postar.append(thing)
-   if len(postar)<1:
-    print("I'm sorry. I didn't understand that.")
-   elif len(postar)==1:
-    tar=postar[0]
-   else:
-    for thing in postar:
-     if(thing["identifier"]==ident):
-      tar=thing
-   cos(tar,player,layer)
-  elif request["action"]=="look":
-   obj,ident=request["arguments"][0]
-   if(obj==""):
-    print(layer[player["room"]]["look"])
-   else:
-    postar=[]
-    tar={}
-    obj,ident=request["arguments"][0]
-    for thing in layer[player["room"]]["contents"]:
-     if thing["name"]==obj:
-      postar.append(thing)
-    if len(postar)<1:
-     print("I'm sorry. I didn't understand that.")
-    elif len(postar)==1:
-     tar=postar[0]
-    else:
-     for thing in postar:
-      if(thing["identifier"]=="ident"):
-       tar=thing
-    print(tar["description"])
-  elif request["action"]=="attack":
-   postar=[]
-   tar={}
-   obj,ident=request["arguments"][0]
-   for thing in layer[player["room"]]["contents"]:
-    if thing["name"]==obj:
-     postar.append(thing)
-   if len(postar)<1:
-    print("I'm sorry. I didn't understand that.")
-   elif len(postar)==1:
-    tar=postar[0]
-   else:
-    for thing in postar:
-     if(thing["identifier"]=="ident"):
-      tar=thing
-   tar["health"]-=player["attack"]
-  elif request["action"]=="move":
-   obj,ident=request["arguments"][0]
-   newrequest={"action":"activate","arguments":[("door",obj)]}
-   runworld(player,layer,newrequest)
-  elif request["action"]=="stop":
-   playing=False
-  elif request["action"]=="create":
-   arg,ident=request["arguments"][0]
-   layer[player["room"]]["contents"].append(ccs(arg,player,layer))
-  elif request["action"]=="edit":
-   obj,ident=request["arguments"][0]
-   if(obj==""):
-    desc=input("What would you like as the new room description? (leave blank to not change):\n")
-    if desc!="":
-     layer[player["room"]]["description"]=desc
-    desc=input("What would you like as the new room search description? (leave blank to not change):\n")
-    if desc!="":
-     layer[player["room"]]["look"]=desc
-   else:
-    postar=[]
-    tar={}
-    for thing in layer[player["room"]]["contents"]:
-     if thing["name"]==obj:
-      postar.append(thing)
-    if len(postar)<1:
-     print("I'm sorry. I didn't understand that.")
-    elif len(postar)==1:
-     tar=postar[0]
-    else:
-     for thing in postar:
-      if(thing["identifier"]=="ident"):
-       tar=thing
-    desc=input("What you like tike to change the "+tar["name"]+"'s name to? (leave blank to not change):\n")
-    if desc!="":
-     tar["name"]=desc
-    desc=input("What would you like as the new description? (leave blank to not change):\n")
-    if desc!="":
-     tar["description"]=desc
-  elif request["action"]=="remove":
-   postar=[]
-   tar={}
-   obj,ident=request["arguments"][0]
-   for i in range(len(layer[player["room"]]["contents"])):
-    if layer[player["room"]]["contents"][i]["name"]==obj:
-     postar.append(i)
-   if len(postar)<1:
-    print("I'm sorry. I didn't understand that.")
-   elif len(postar)==1:
-    tar=postar[0]
-   else:
-    for i in postar:
-     if(layer[player["room"]]["contents"][i]["identifier"]==ident):
-      tar=i
-   objscr=importlib.import_module("objectScripts."+layer[player["room"]]["contents"][tar]["creation"])
-   objscr.remove(layer[player["room"]]["contents"][tar],player,layer)
-   del layer[player["room"]]["contents"][tar]
-  #elif request["action"]=="pickup":
-  #elif request["action"]=="drop":
+  actscr=importlib.import_module("actionscripts."+request["action"])
+  playing=actscr.main(player,layer,request,playing)
+  for thing in layer[player["room"]]["contents"]:
+   if "passive" in thing:
+    args=[]
+    for arg in thing["passargs"]:
+     args.append(thing[arg])
+    objscr=importlib.import_module("objectScripts."+thing["passive"])
+    objscr.main(args,player,layer)
  else:
   player["room"]=0
  return player,layer,playing
 
-def takeInput(spoken):#directly called by client; parses player input #WIP
- 
-# words=spoken.split(" ")
-# pact=[]
-# parg=[]
-# for word in words:
-#  if word in actionids:
-#   action=actionidspair[actionids.index(word)]
-#   for argword in words:
-#    if argword in 
+def takeInput(player,layer):#directly called by client; parses player input
 # request={"action":"activate","arguments":[("door","north")]}#sample ouput; format:{"action":"action identifier","arguments":[alistofarguments,("argument","identifier"),...]}
- words=spoken.split(" ")
- if(len(words)>=3):
-  request={"action":words[0],"arguments":[(words[1],words[2])]}
- elif(len(words)==2):
-  request={"action":words[0],"arguments":[(words[1],"")]}
- elif(len(words)==1):
-  request={"action":words[0],"arguments":[("","")]}
- 
- return request
+ request={}
+ found=False
+ while not found:
+  spoken=input("")
+  words=stripstr(spoken).split(" ")
+  for word in words:
+   if word in actionids:
+    action=actions[actionnames[actionidspair[actionids.index(word)]]]
+    found=True
+    break
+  else:
+   print("Your input was not understood.")
+   found=False
+ if found:
+  request={}
+  request["action"]=action["name"]
+  request["arguments"]=[None]*len(action["arguments"])
+  argList=[]
+  for i in range(len(action["arguments"])):
+   arg=action["arguments"][i]
+   if arg["type"]=="string":
+    data=""
+    for thing,syn in arg["values"]:
+     for word in words:
+      if word in syn:
+       data=thing
+       break
+    request["arguments"][i]=(data,"")
+   elif arg["type"]=="variable":
+    argData=arg["values"][0].split(" ")
+    data=""
+    if argData[1]=="object":
+     if argData[0]=="enviroment":
+      temp=["room","goblin"]#,"space"
+      #temppair=["room","room"]
+      for thing in layer[player["room"]]["contents"]:#future feature: object synonyms; need to add synonyms to objects, some potential script in comments
+       #for syn in thing["synonyms"]:
+       # temp.append(syn)
+       # temppair.append(thing)
+       temp.append(thing["name"])
+      for word in words:
+       if word in temp:
+        data=word
+        break
+      if data in ["room","goblin"]:
+       request["arguments"][i]=(data,"")
+      else:
+       newobj={}
+       try:
+        f=open("objects/"+data+".data","r")
+        newobj=json.load(f)
+        f.close()
+       except:
+        for obj in layer[player["room"]]["contents"]:
+         if obj["name"]==data:
+          newobj=obj.copy()
+          break
+       ident=""
+       if len(newobj["identifiers"])>0:
+        if newobj["identifiers"][0]=="varying":
+         idents=[]
+         for thing in layer[player["room"]]["contents"]:
+          if thing["name"]==data:
+           idents.extend(thing["identifiers"])
+           idents.append(thing["identifier"])
+         idents=list(set(idents))
+         for word in words:
+          if word in idents:
+           ident=word
+           break
+        else:
+         for word in words:
+          if word in newobj["identifiers"]:
+           ident=word
+           break
+       request["arguments"][i]=(data,ident)
+     elif argData[0]=="non":
+      temp=listdir("./objects")
+      things=[]
+      data=""
+      for f in temp:
+       things.append(f.split(".")[0])
+      for word in words:
+       if word in things:
+        data=word
+        break
+      request["arguments"][i]=(data,"")
+  return request
 
 def outputText(player,layer):#directly called by client; generates output text
  
  if(player["room"]>=0):
   textblock=layer[player["room"]]["description"].split("&",1)
-  textblock.insert(1,utility.mtlists(layer[player["room"]]["contents"]))
+  textblock.insert(1,mtlists(layer[player["room"]]["contents"]))
   txt=""
   for thing in textblock:
    txt+=thing
  else:
-  txt="You appear to left the map...\nYou will be returned to the center of the map."
+  txt="You appear to have left the map...\nYou will be returned to the center of the map."
 
  return txt

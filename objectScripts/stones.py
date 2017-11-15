@@ -1,5 +1,5 @@
 stones=["N","NNE","ENE","E","ESE","SSE","S","SSW","WSW","W","WNW","NNW"]
-targets=[63,63,63,64,63,63,63,63,63,63,63,63]
+targets=[63,63,63,64,63,63,4095,63,63,63,63,63]
 stonedata=[("white","cold glyph"),("purple","flowery glyph"),("cyan","glyph which reminds you of rolling waves"),("marbled blue and green","simple glyph which makes you think of home"),("yellow","glyph which seems strangely dry"),("black","dark glyph which scares you"),("marbled red and black","fiery glyph"),("red","hard edged glyph"),("blue","glyph"),("green","glyph which looks like a large tree"),("pink","glyph"),("lime","glyph")]
 
 def main(args,player,layer):

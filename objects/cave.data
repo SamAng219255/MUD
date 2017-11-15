@@ -1,0 +1,1 @@
+{"type": "object", "name": "cave", "description": "It is a gaping hole in the ground.", "script": "cave", "args": ["target", "txt"], "creation": "newcave", "identifiers": [], "identifier": "", "health": 20, "passive": "basicpassive", "passargs":[], "caveid":0, "target": "0", "txt": "You walk into the cave."}

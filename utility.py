@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+import string
 
 def tlist(listed):
 	finalList=[]
@@ -143,3 +144,8 @@ def mtlists(listed):#medium text list, specific; for listing room contents
 		else:
 			temp[stor.index(elemname)][1]+=1
 	return tlist(temp)
+
+def stripstr(s):
+ punc=list(string.punctuation)
+ punc.remove("_")
+ return ''.join(c for c in s.lower() if c not in punc)

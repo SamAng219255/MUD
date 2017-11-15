@@ -12,13 +12,20 @@ def ccs(obj,player,layer):#Call Creation Script; creates an enviroment object an
 def main(obj,player,layer):
  obj["name"]=input("name:\n")
  obj["description"]=input("description:\n")
- obj["script"]=input("script name:\n")
+ obj["script"]=input("script name (leave blank for default):\n")
  if(obj["script"]==""):
   obj["script"]="basic"
  else:
   obj["args"]=input("arguments (comma seperated list):\n").split(",")
   if(obj["args"][0]==""):
    del obj["args"][0]
+ obj["passive"]=input("passive script name (leave blank for default):\n")
+ if(obj["passive"]==""):
+  obj["passive"]="basicpassive"
+ else:
+  obj["passargs"]=input("arguments (comma seperated list):\n").split(",")
+  if(obj["passargs"][0]==""):
+   del obj["passargs"][0]
  obj["creation"]=input("creation script name (leave blank for default):\n")
  if(obj["creation"]==""):
   obj["creation"]="basicreate"

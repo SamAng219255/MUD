@@ -2,6 +2,7 @@ import json
 
 def main(door,player,layer):
  door["identifier"]=input("What should it be called?\n")
+ door["identifiers"]=[door["identifier"]]
  reyal=input("Which layer should it go to? (leave blank for this one)\n")
  if reyal=="":
   reyal=player["layer"]
@@ -23,9 +24,13 @@ def main(door,player,layer):
  newobj["layer"]=player["layer"]
  newobj["room"]=player["room"]
  newobj["identifier"]=door["identifier"]
- lf=open("region/layer"+str(reyal)+".data","r")
- newlayer=json.load(lf)
- lf.close()
+ newobj["identifiers"]=[door["identifier"]]
+ try:
+  lf=open("region/layer"+str(reyal)+".data","r")
+  newlayer=json.load(lf)
+  lf.close()
+ except:
+  newlayer=[{"description":"You are in a blank room with & in it.","contents":[],"look":"You look harder but you still can't find much."}]*(64**2)
  newlayer[moor]["contents"].append(newobj)
  lf=open("region/layer"+str(reyal)+".data","w")
  json.dump(newlayer,lf)

@@ -13,9 +13,18 @@ if __name__=="__main__":
   player,layer=statusread(userId)
   layerId=player["layer"]
   print(outputText(player,layer))
-  playerInput=takeInput(input(""))
-  if player["room"]<0:
-   player,layer,playing=runworld(player,layer,playerInput)
-  else:
-   player,layer,playing=runworld(player,layer,playerInput)
-   statuswrite(player,layer,userId,layerId)
+  while True:
+   try:
+    playerInput=takeInput(player,layer)
+    if player["room"]<0:
+     player,layer,playing=runworld(player,layer,playerInput)
+    elif len(playerInput["arguments"])>0 and playerInput["arguments"][0][0]=="goblin":
+     print("There are no more goblins…")
+    else:
+     player,layer,playing=runworld(player,layer,playerInput)
+     statuswrite(player,layer,userId,layerId)
+   except:
+    print("That target does not exist.")
+    raise Exception("stop")#in case of accidental unbreakable infinite loops.
+    continue
+   break
